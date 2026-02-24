@@ -18,3 +18,9 @@ View your app in AI Studio: https://ai.studio/apps/0b2a791c-fceb-4432-bab7-4ea96
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
 3. Run the app:
    `npm run dev`
+
+## Base path configuration
+
+- Development defaults to `/` to avoid blank pages on `localhost`.
+- Production defaults to `/M-APP/`.
+- Override in any environment using `VITE_BASE_PATH` (for example: `VITE_BASE_PATH=/your-subpath/`).

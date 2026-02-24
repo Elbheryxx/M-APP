@@ -5,8 +5,11 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
+    const configuredBase = env.VITE_BASE_PATH?.trim();
+    const base = configuredBase || (mode === 'production' ? '/M-APP/' : '/');
+
     return {
-      base: '/M-APP/',
+      base,
       server: {
         port: 3000,
         host: '0.0.0.0',
