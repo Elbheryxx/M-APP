@@ -1,0 +1,7 @@
+{
+  "name": "IntelliMaintain Pro",
+  "description": "A world-class Maintenance Management System (MMS) featuring role-based workflows, inventory tracking, and Gemini AI-powered issue analysis and troubleshooting.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
