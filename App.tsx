@@ -6,7 +6,7 @@ import {
   Bell, 
   LogOut,
   Menu,
-  Sparkles,
+  Wrench,
   ChevronLeft
 } from 'lucide-react';
 import { User, MaintenanceRequest, Notification, Building, RequestStatus, UserRole, HistoryEntry } from './types';
@@ -202,7 +202,7 @@ export default function App() {
         <div className="flex items-center justify-between mb-10 px-2">
           <div className="flex items-center gap-3">
             <div className="bg-blue-600 p-2 rounded-xl">
-              <Sparkles className="text-white w-6 h-6" />
+              <Wrench className="text-white w-6 h-6" />
             </div>
             <h1 className="text-xl font-bold text-slate-900 tracking-tight whitespace-nowrap">IntelliMaintain</h1>
           </div>

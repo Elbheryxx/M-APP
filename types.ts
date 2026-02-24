@@ -79,7 +79,6 @@ export interface MaintenanceRequest {
   totalCost: number;
   managerFeedback?: string;
   history: HistoryEntry[];
-  aiAnalysis?: string;
   assessmentPhotos: string[]; // Photos before starting
   completionPhotos: string[]; // Photos after finishing
 }

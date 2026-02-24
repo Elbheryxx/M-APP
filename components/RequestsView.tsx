@@ -3,13 +3,12 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { MaintenanceRequest, User, UserRole, RequestMaterial, Building, RequestStatus } from '../types';
 import { 
   Plus, Building as BuildingIcon, MapPin, 
-  Sparkles, X, Clock, Phone, User as UserIcon,
+  X, Clock, Phone, User as UserIcon,
   Camera, Image as ImageIcon, CheckCircle, Ban, Archive,
   AlignLeft, Hash, Send, ChevronRight, AlertCircle, Eye, 
   Wrench, ShieldCheck, Box, ClipboardCheck, MessageCircle, ExternalLink,
   DollarSign, Tag, Receipt, Truck, Search
 } from 'lucide-react';
-import { analyzeMaintenanceRequest } from '../services/geminiService';
 
 const WhatsAppLogo = ({ size = 16, className = "" }: { size?: number, className?: string }) => (
   <svg viewBox="0 0 24 24" width={size} height={size} fill="currentColor" className={className}>
@@ -35,7 +34,6 @@ export function RequestsView({
 }: Props) {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('default');
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   
@@ -104,13 +102,6 @@ export function RequestsView({
     e.preventDefault();
     if (!formData.building || !formData.unit || !formData.description) return alert("Fill all fields");
 
-    setIsAnalyzing(true);
-    let aiResult = "{}";
-    try { 
-      aiResult = await analyzeMaintenanceRequest(formData.description); 
-    } catch (e) {}
-    setIsAnalyzing(false);
-
     const newRequest: MaintenanceRequest = {
       id: Date.now(),
       requestNo: `REQ-${String(requests.length + 1).padStart(4, '0')}`,
@@ -128,7 +119,6 @@ export function RequestsView({
       laborCost: 0,
       totalCost: 0,
       history: [{ id: Date.now(), text: `New request created by ${user.name}. Needs assessment.`, createdAt: new Date().toISOString() }],
-      aiAnalysis: aiResult,
       assessmentPhotos: ['https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&q=80&w=600'],
       completionPhotos: []
     };
@@ -222,11 +212,6 @@ export function RequestsView({
 
   const selectedReq = requests.find(r => r.id === selectedRequestId);
   
-  const aiData = useMemo(() => {
-    if (!selectedReq?.aiAnalysis) return null;
-    try { return JSON.parse(selectedReq.aiAnalysis); } catch { return null; }
-  }, [selectedReq]);
-
   const StatusTab = ({ active, label, onClick, count, icon: Icon }: any) => (
     <button onClick={onClick} className={`flex-1 py-4 px-4 text-xs font-bold transition-all border-b-2 flex items-center justify-center gap-2 ${active ? 'border-blue-600 text-blue-600 bg-blue-50/50' : 'border-transparent text-slate-400 hover:text-slate-600'}`}>
       {Icon && <Icon size={14} />} {label} {count !== undefined && count > 0 && <span className="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded-full text-[10px]">{count}</span>}
@@ -329,7 +314,7 @@ export function RequestsView({
               <div className="mb-10 p-8 bg-slate-900 rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden">
                 <div className="relative z-10">
                    <h4 className="font-black text-blue-400 uppercase tracking-[0.2em] text-[10px] mb-4 flex items-center gap-2">
-                      <Sparkles size={14} /> Mission Control
+                      Mission Control
                    </h4>
                    
                    {user.role === UserRole.TECH && (
@@ -338,7 +323,6 @@ export function RequestsView({
                           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                              <div className="bg-blue-600/20 border border-blue-500/30 p-6 rounded-[2rem] mb-4">
                                <p className="text-blue-100 font-bold text-lg leading-tight">
-                                 <Sparkles className="inline-block mr-2 mb-1" size={20} />
                                  Technical Survey Required
                                </p>
                                <p className="text-blue-200/70 text-sm mt-1">
@@ -712,30 +696,8 @@ export function RequestsView({
                   </div>
                 </div>
 
-                <div className="space-y-6">
-                   {aiData && (
-                    <section className="bg-blue-50/50 p-6 rounded-[2rem] border border-blue-100">
-                       <h4 className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-4 flex items-center gap-2">
-                          <Sparkles size={14} /> AI Diagnostics Report
-                       </h4>
-                       <div className="space-y-4">
-                          <div>
-                             <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Root Cause Analysis</p>
-                             <p className="text-sm font-bold text-slate-800 leading-tight">{aiData.potentialCause}</p>
-                          </div>
-                          <div>
-                             <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Recommended Deployment Kit</p>
-                             <div className="flex flex-wrap gap-2 mt-1">
-                                {aiData.requiredTools?.map((t: string) => (
-                                  <span key={t} className="bg-white border border-blue-100 text-[10px] font-bold px-2 py-1 rounded-md text-blue-600">{t}</span>
-                                ))}
-                             </div>
-                          </div>
-                       </div>
-                    </section>
-                  )}
-
-                   <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                 <div className="space-y-6">
+                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                       <Clock size={14} /> Lifecycle Ledger
                    </h4>
                    <div className="space-y-8 relative before:absolute before:left-[11px] before:top-2 before:bottom-0 before:w-px before:bg-slate-100">
@@ -797,8 +759,8 @@ export function RequestsView({
                        <input type="text" placeholder="+971 50..." className="w-full px-6 py-4 bg-slate-50 rounded-2xl border-none font-bold" value={formData.tenantPhone} onChange={e => setFormData({...formData, tenantPhone: e.target.value})} />
                     </div>
                  </div>
-                 <button type="submit" disabled={isAnalyzing} className="w-full bg-blue-600 text-white py-5 rounded-3xl font-black shadow-2xl flex items-center justify-center gap-3 hover:bg-blue-700 transition-all active:scale-[0.98] disabled:opacity-50">
-                    {isAnalyzing ? <><Clock className="animate-spin" size={24} /> Analyzing with Gemini...</> : <><Sparkles size={24} /> Deploy to Assessment</>}
+                 <button type="submit" className="w-full bg-blue-600 text-white py-5 rounded-3xl font-black shadow-2xl flex items-center justify-center gap-3 hover:bg-blue-700 transition-all active:scale-[0.98]">
+                    Deploy to Assessment
                  </button>
               </form>
            </div>

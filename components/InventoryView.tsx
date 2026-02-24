@@ -3,9 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Material } from '../types';
 import { 
   Package, Search, AlertTriangle, TrendingDown, TrendingUp, 
-  ArrowRightLeft, Sparkles, Filter, MoreVertical, Plus
+  ArrowRightLeft, Filter, MoreVertical, Plus
 } from 'lucide-react';
-import { getInventoryInsights } from '../services/geminiService';
 
 interface Props {
   materials: Material[];
@@ -14,18 +13,6 @@ interface Props {
 
 export function InventoryView({ materials, setMaterials }: Props) {
   const [search, setSearch] = useState('');
-  const [aiInsights, setAiInsights] = useState<string | null>(null);
-  const [isLoadingInsights, setIsLoadingInsights] = useState(false);
-
-  useEffect(() => {
-    const fetchInsights = async () => {
-      setIsLoadingInsights(true);
-      const res = await getInventoryInsights(materials);
-      setAiInsights(res);
-      setIsLoadingInsights(false);
-    };
-    fetchInsights();
-  }, [materials]);
 
   const filtered = materials.filter(m => 
     m.name.toLowerCase().includes(search.toLowerCase()) || 
@@ -52,7 +39,7 @@ export function InventoryView({ materials, setMaterials }: Props) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <div className="lg:col-span-3 space-y-6">
+        <div className="lg:col-span-4 space-y-6">
           <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
             <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
                <div className="relative flex-1 max-w-md">
@@ -119,29 +106,7 @@ export function InventoryView({ materials, setMaterials }: Props) {
           </div>
         </div>
 
-        <div className="lg:col-span-1 space-y-6">
-           <div className="bg-blue-600 rounded-[2rem] p-8 text-white shadow-xl shadow-blue-200 relative overflow-hidden">
-              <div className="relative z-10">
-                <div className="flex items-center gap-2 mb-4">
-                   <Sparkles size={20} className="text-blue-200" />
-                   <h3 className="text-lg font-bold">AI Inventory Insights</h3>
-                </div>
-                {isLoadingInsights ? (
-                  <div className="space-y-4 animate-pulse">
-                    <div className="h-4 bg-blue-500/50 rounded w-full"></div>
-                    <div className="h-4 bg-blue-500/50 rounded w-5/6"></div>
-                    <div className="h-4 bg-blue-500/50 rounded w-4/6"></div>
-                  </div>
-                ) : (
-                  <div className="text-blue-50 text-sm font-medium leading-relaxed whitespace-pre-wrap italic">
-                    {aiInsights || "Run analysis to get warehouse recommendations."}
-                  </div>
-                )}
-              </div>
-              {/* Decorative Circle */}
-              <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
-           </div>
-
+        <div className="lg:col-span-4 space-y-6">
            <div className="bg-white border border-slate-200 rounded-[2rem] p-8 shadow-sm">
               <h3 className="text-lg font-bold text-slate-900 mb-6">Stock Health</h3>
               <div className="space-y-6">
